@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fotogalerie - Teile deine Bilder</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="logo"><span class="logo-icon">📷</span> Fotogalerie 80 Jahre EGESP</h1>
+            <div class="nav-links">
+                <a href="#" id="navHome" class="nav-link">Galerie</a>
+                <div id="userMenu" class="user-menu" style="display: none;">
+                    <span id="userNameDisplay" class="user-name"></span>
+                    <button id="btnUpload" class="btn btn-primary">Hochladen</button>
+                    <button id="btnMyImages" class="btn btn-secondary">Meine Bilder</button>
+                    <button id="btnLogout" class="btn btn-danger">Logout</button>
+                </div>
+                <div id="authMenu" class="auth-menu">
+                    <button id="btnLoginNav" class="btn btn-primary">Login</button>
+                    <button id="btnRegisterNav" class="btn btn-secondary">Registrierung</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Login Seite -->
+        <section id="loginPage" class="page active">
+            <div class="form-container">
+                <h2>Anmelden</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">E-Mail:</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Passwort:</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Anmelden</button>
+                    <p class="form-info"><a href="#" onclick="showPage('forgotPasswordPage')">Passwort vergessen?</a></p>
+                    <p class="form-info">Noch kein Konto? <a href="#" onclick="showPage('registerPage')">Hier registrieren</a></p>
+                </form>
+                <div id="loginMessage" class="message"></div>
+            </div>
+        </section>
+
+        <!-- Passwort vergessen Seite -->
+        <section id="forgotPasswordPage" class="page">
+            <div class="form-container">
+                <h2>Passwort vergessen</h2>
+                <p class="info-text">Geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Link zum Zurücksetzen.</p>
+                <form id="forgotPasswordForm">
+                    <div class="form-group">
+                        <label for="forgotEmail">E-Mail:</label>
+                        <input type="email" id="forgotEmail" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Reset-Link senden</button>
+                    <p class="form-info"><a href="#" onclick="showPage('loginPage')">Zurück zum Login</a></p>
+                </form>
+                <div id="forgotMessage" class="message"></div>
+            </div>
+        </section>
+
+        <!-- Passwort zurücksetzen Seite -->
+        <section id="resetPasswordPage" class="page">
+            <div class="form-container">
+                <h2>Neues Passwort setzen</h2>
+                <form id="resetPasswordForm">
+                    <input type="hidden" id="resetToken">
+                    <div class="form-group">
+                        <label for="resetPassword">Neues Passwort:</label>
+                        <input type="password" id="resetPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="resetPasswordConfirm">Passwort wiederholen:</label>
+                        <input type="password" id="resetPasswordConfirm" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Passwort speichern</button>
+                    <p class="form-info"><a href="#" onclick="showPage('loginPage')">Zurück zum Login</a></p>
+                </form>
+                <div id="resetMessage" class="message"></div>
+            </div>
+        </section>
+
+        <!-- Registrierung Seite -->
+        <section id="registerPage" class="page">
+            <div class="form-container">
+                <h2>Registrierung</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerUsername">Benutzername:</label>
+                        <input type="text" id="registerUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">E-Mail:</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Passwort:</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPasswordConfirm">Passwort wiederholen:</label>
+                        <input type="password" id="registerPasswordConfirm" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Registrieren</button>
+                    <p class="form-info">Bereits angemeldet? <a href="#" onclick="showPage('loginPage')">Hier anmelden</a></p>
+                </form>
+                <div id="registerMessage" class="message"></div>
+            </div>
+        </section>
+
+        <!-- Verifizierungs Seite -->
+        <section id="verifyPage" class="page">
+            <div class="form-container">
+                <h2>E-Mail Verifizierung</h2>
+                <p class="info-text">Bitte überprüfen Sie Ihre E-Mail auf den Verifizierungslink. 
+                   Wenn Sie den Link gerade angeklickt haben, wird die Verifizierung automatisch durchgeführt...</p>
+                <div id="verifyMessage" class="message"></div>
+                <p class="form-info"><a href="#" onclick="showPage('loginPage')">Zurück zum Login</a></p>
+            </div>
+        </section>
+
+        <!-- Galerie Seite -->
+        <section id="galleryPage" class="page">
+            <div class="gallery-header">
+                <h2>Fotogalerie</h2>
+                <div class="filters-wrapper">
+                    <div class="filters-title">Filter</div>
+                    <div class="filters">
+                        <select id="filterCategory">
+                            <option value="">Alle Kategorien</option>
+                            <option value="Dokumente">Dokumente</option>
+                            <option value="Quartier allgemein">Quartier allgemein</option>
+                            <option value="Eichacker">Eichacker</option>
+                            <option value="Stettbachstrasse">Stettbachstrasse</option>
+                            <option value="Probsteistrasse">Probsteistrasse</option>
+                        </select>
+                        <select id="filterYear">
+                            <option value="">Alle anzeigen</option>
+                            <option value="1939">vor 1940</option>
+                            <option value="1950">1940 - 1960</option>
+                            <option value="1970">1960 - 1980</option>
+                            <option value="1990">1980 - 2000</option>
+                            <option value="2010">2000 - 2020</option>
+                            <option value="2020">ab 2020</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="galleryContainer" class="gallery-grid">
+                <!-- Bilder werden hier eingefügt -->
+            </div>
+        </section>
+
+        <!-- Meine Bilder Seite -->
+        <section id="myImagesPage" class="page">
+            <div class="gallery-header">
+                <h2>Meine Bilder</h2>
+            </div>
+            <div id="myImagesContainer" class="gallery-grid">
+                <!-- Bilder des Benutzers werden hier eingefügt -->
+            </div>
+        </section>
+
+        <!-- Upload Seite -->
+        <section id="uploadPage" class="page">
+            <div class="form-container">
+                <h2>Bild hochladen</h2>
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label for="uploadFile">Bild auswählen:</label>
+                        <input type="file" id="uploadFile" accept="image/*" required>
+                        <small>Unterstützt: JPEG, PNG, GIF, WebP (max. 5MB)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="uploadDescription">Beschreibung:</label>
+                        <textarea id="uploadDescription" rows="4" placeholder="Beschreiben Sie das Bild..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="uploadCategory">Bildkategorie:</label>
+                        <select id="uploadCategory" required>
+                            <option value="">Bitte wählen...</option>
+                            <option value="Dokumente">Dokumente</option>
+                            <option value="Quartier allgemein">Quartier allgemein</option>
+                            <option value="Eichacker">Eichacker</option>
+                            <option value="Stettbachstrasse">Stettbachstrasse</option>
+                            <option value="Probsteistrasse">Probsteistrasse</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="uploadYear">Aufnahmejahr:</label>
+                            <select id="uploadYear">
+                                <option value="">Bitte wählen...</option>
+                                <option value="1939">vor 1940</option>
+                                <option value="1950">1940 - 1960</option>
+                                <option value="1970">1960 - 1980</option>
+                                <option value="1990">1980 - 2000</option>
+                                <option value="2010">2000 - 2020</option>
+                                <option value="2020">ab 2020</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="imagePreview" class="image-preview" style="display: none;">
+                        <img id="previewImg" alt="Vorschau">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Hochladen</button>
+                </form>
+                <div id="uploadMessage" class="message"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal für Bild-Details -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <button id="zoomImageBtn" class="zoom-image-btn" title="Bild vergrößern" aria-label="Bild vergrößern">🔍</button>
+            <img id="modalImage" alt="Großes Bild">
+            <div class="image-details">
+                <h3 id="modalTitle"></h3>
+                <p id="modalDescription"></p>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <strong>Bildkategorie:</strong>
+                        <p id="modalLocation"></p>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Aufnahmejahr:</strong>
+                        <p id="modalYear"></p>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Uploader:</strong>
+                        <p id="modalUploader"></p>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Hochgeladen:</strong>
+                        <p id="modalDate"></p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="editImageBtn" class="btn btn-primary" style="display: none; flex: 1;">Bearbeiten</button>
+                    <button id="deleteImageBtn" class="btn btn-danger" style="display: none; flex: 1;">Löschen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zweite Vergrößerungsstufe ohne Beschreibungen -->
+    <div id="zoomModal" class="modal">
+        <div class="zoom-modal-content">
+            <button id="closeZoomBtn" class="zoom-close-btn" aria-label="Zoom schließen">&times;</button>
+            <img id="zoomImage" alt="Bild in hoher Vergrößerung">
+        </div>
+    </div>
+
+    <!-- Modal für Bild-Bearbeitung -->
+    <div id="editModal" class="modal">
+        <div class="modal-content" style="max-width: 520px;">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <div class="image-details">
+                <h3>Bild bearbeiten</h3>
+                <form id="editForm">
+                    <div class="form-group">
+                        <label for="editDescription">Beschreibung:</label>
+                        <textarea id="editDescription" rows="4" placeholder="Beschreiben Sie das Bild..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCategory">Bildkategorie:</label>
+                        <select id="editCategory" required>
+                            <option value="">Bitte wählen...</option>
+                            <option value="Dokumente">Dokumente</option>
+                            <option value="Quartier allgemein">Quartier allgemein</option>
+                            <option value="Eichacker">Eichacker</option>
+                            <option value="Stettbachstrasse">Stettbachstrasse</option>
+                            <option value="Probsteistrasse">Probsteistrasse</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editYear">Aufnahmejahr:</label>
+                        <select id="editYear">
+                            <option value="">Bitte wählen...</option>
+                            <option value="1939">vor 1940</option>
+                            <option value="1950">1940 - 1960</option>
+                            <option value="1970">1960 - 1980</option>
+                            <option value="1990">1980 - 2000</option>
+                            <option value="2010">2000 - 2020</option>
+                            <option value="2020">ab 2020</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Änderungen speichern</button>
+                </form>
+                <div id="editMessage" class="message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
