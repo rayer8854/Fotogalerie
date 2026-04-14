@@ -622,16 +622,21 @@ function showPage(pageId) {
 function updateUI() {
     const authMenu = document.getElementById('authMenu');
     const userMenu = document.getElementById('userMenu');
+    const isAuthFlowRoute = window.location.pathname === '/reset-password' || window.location.pathname === '/verify';
 
     if (currentUser) {
         authMenu.style.display = 'none';
         userMenu.style.display = 'flex';
         document.getElementById('userNameDisplay').textContent = `${currentUser.username}`;
-        showPage('galleryPage');
+        if (!isAuthFlowRoute) {
+            showPage('galleryPage');
+        }
     } else {
         authMenu.style.display = 'flex';
         userMenu.style.display = 'none';
-        showPage('loginPage');
+        if (!isAuthFlowRoute) {
+            showPage('loginPage');
+        }
     }
 }
 

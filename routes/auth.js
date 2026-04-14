@@ -167,7 +167,21 @@ router.post('/forgot-password', async (req, res) => {
       [resetToken, resetExpiry, user.id]
     );
 
-    await sendPasswordResetEmail(user.email, resetToken);
+    const emailResult = await sendPasswordResetEmail(user.email, resetToken);
+
+    if (!emailResult.success) {
+      console.warn('⚠️ Passwort-Reset E-Mail konnte nicht versendet werden:', emailResult.error || emailResult.message);
+
+      // In Entwicklung einen Fallback-Link ausgeben, in Produktion keine Details leaken
+      if (process.env.NODE_ENV !== 'production') {
+        return res.json({
+          success: true,
+          message: 'Reset-E-Mail konnte nicht versendet werden. Nutzen Sie den Fallback-Link.',
+          resetToken,
+          resetUrl: `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`
+        });
+      }
+    }
 
     return res.json({
       success: true,
