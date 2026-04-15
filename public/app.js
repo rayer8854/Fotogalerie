@@ -5,6 +5,7 @@ const API_URL = 'http://localhost:5000/api';
 let currentUser = null;
 let currentToken = null;
 let allImages = [];
+let isResetPasswordFlowActive = false;
 
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
@@ -194,6 +195,7 @@ function checkResetPasswordFlow() {
 
     if (window.location.pathname === '/reset-password') {
         if (token) {
+            isResetPasswordFlowActive = true;
             document.getElementById('resetToken').value = token;
             showPage('resetPasswordPage');
             // Token aus der URL entfernen, aber App wieder auf die normale Root-Route setzen
@@ -254,6 +256,7 @@ async function handleResetPassword(e) {
         const messageEl = document.getElementById('resetMessage');
 
         if (data.success) {
+            isResetPasswordFlowActive = false;
             showMessage(messageEl, data.message, 'success');
             document.getElementById('resetPasswordForm').reset();
             setTimeout(() => showPage('loginPage'), 1500);
@@ -634,7 +637,7 @@ function showPage(pageId) {
 function updateUI() {
     const authMenu = document.getElementById('authMenu');
     const userMenu = document.getElementById('userMenu');
-    const isAuthFlowRoute = window.location.pathname === '/reset-password' || window.location.pathname === '/verify';
+    const isAuthFlowRoute = window.location.pathname === '/verify' || isResetPasswordFlowActive;
 
     if (currentUser) {
         authMenu.style.display = 'none';
