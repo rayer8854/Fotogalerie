@@ -13,6 +13,58 @@ const transporter = nodemailer.createTransport({
   debug: true
 });
 
+const normalizeBaseUrl = (value) => {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const parsedUrl = new URL(value);
+    return parsedUrl.origin.replace(/\/$/, '');
+  } catch (error) {
+    console.warn('⚠️ Ungültige Basis-URL in der Mail-Konfiguration:', value);
+    return null;
+  }
+};
+
+const isLocalUrl = (value) => {
+  if (!value) {
+    return false;
+  }
+
+  try {
+    const hostname = new URL(value).hostname;
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+  } catch (error) {
+    return false;
+  }
+};
+
+const getFrontendBaseUrl = () => {
+  const configuredUrl = normalizeBaseUrl(process.env.FRONTEND_URL);
+  const appUrl = normalizeBaseUrl(process.env.APP_URL);
+  const renderExternalUrl = normalizeBaseUrl(process.env.RENDER_EXTERNAL_URL);
+  const candidates = [configuredUrl, appUrl, renderExternalUrl].filter(Boolean);
+
+  if (process.env.NODE_ENV === 'production') {
+    const publicUrl = candidates.find((candidate) => !isLocalUrl(candidate));
+
+    if (publicUrl) {
+      if (configuredUrl && isLocalUrl(configuredUrl)) {
+        console.warn('⚠️ FRONTEND_URL zeigt in Produktion auf localhost. Verwende stattdessen:', publicUrl);
+      }
+
+      return publicUrl;
+    }
+  }
+
+  if (candidates.length > 0) {
+    return candidates[0];
+  }
+
+  return 'http://localhost:5000';
+};
+
 // Teste die Verbindung bei Server-Start
 transporter.verify((error, success) => {
   if (error) {
@@ -25,7 +77,7 @@ transporter.verify((error, success) => {
 // Verifizierungs-E-Mail senden
 const sendVerificationEmail = async (email, verificationToken) => {
   try {
-    const verificationLink = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
+    const verificationLink = `${getFrontendBaseUrl()}/verify?token=${verificationToken}`;
     
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -76,7 +128,7 @@ const sendWelcomeEmail = async (email, username) => {
 // Passwort-Reset E-Mail senden
 const sendPasswordResetEmail = async (email, resetToken) => {
   try {
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+    const resetLink = `${getFrontendBaseUrl()}/reset-password?token=${resetToken}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
