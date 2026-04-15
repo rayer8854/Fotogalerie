@@ -1,5 +1,5 @@
 // API Base URL
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api';
 
 // State
 let currentUser = null;
@@ -409,7 +409,7 @@ function createGalleryItem(image, isMyImage) {
     const item = document.createElement('div');
     item.className = 'gallery-item';
 
-    const imageUrl = `http://localhost:5000/uploads/${image.filename}`;
+    const imageUrl = `/uploads/${image.filename}`;
     const categoryText = image.category || 'Nicht angegeben';
     const yearText = image.year_label || getYearLabelFromNumber(image.year) || image.year || 'Unbekannt';
     const descriptionText = image.description || 'Keine Beschreibung';
@@ -437,7 +437,7 @@ function createGalleryItem(image, isMyImage) {
 
 function openModal(image, isMyImage) {
     const modal = document.getElementById('imageModal');
-    const imageUrl = `http://localhost:5000/uploads/${image.filename}`;
+    const imageUrl = `/uploads/${image.filename}`;
 
     document.getElementById('modalImage').src = imageUrl;
     document.getElementById('modalTitle').textContent = image.original_filename;
