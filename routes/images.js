@@ -7,9 +7,20 @@ const { verifyToken } = require('../config/auth');
 const { dbAsync } = require('../config/database');
 
 // Stelle sicher, dass Upload-Verzeichnis existiert
-const uploadDir = process.env.UPLOAD_DIR || './uploads';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+const configuredUploadDir = process.env.UPLOAD_DIR || './uploads';
+const fallbackUploadDir = path.join(__dirname, '..', 'uploads');
+let uploadDir = configuredUploadDir;
+
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (error) {
+  console.warn(`⚠️ Upload-Verzeichnis '${configuredUploadDir}' nicht nutzbar (${error.code || error.message}). Verwende Fallback '${fallbackUploadDir}'.`);
+  uploadDir = fallbackUploadDir;
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
 }
 
 // Konfiguriere Multer für Datei-Upload
