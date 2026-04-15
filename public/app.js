@@ -192,10 +192,22 @@ function checkResetPasswordFlow() {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
 
-    if (window.location.pathname === '/reset-password' && token) {
-        document.getElementById('resetToken').value = token;
-        showPage('resetPasswordPage');
-        window.history.replaceState({}, document.title, '/reset-password');
+    if (window.location.pathname === '/reset-password') {
+        if (token) {
+            document.getElementById('resetToken').value = token;
+            showPage('resetPasswordPage');
+            // Token aus der URL entfernen, aber App wieder auf die normale Root-Route setzen
+            window.history.replaceState({}, document.title, '/');
+            return;
+        }
+
+        // Fallback: Route wurde ohne Token aufgerufen
+        showPage('forgotPasswordPage');
+        showMessage(
+            document.getElementById('forgotMessage'),
+            'Der Reset-Link ist unvollständig oder abgelaufen. Bitte fordern Sie einen neuen Link an.',
+            'error'
+        );
     }
 }
 
