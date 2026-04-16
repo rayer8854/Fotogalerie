@@ -3,6 +3,34 @@ const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const { dbAsync } = require('./database');
 
+const getJwtExpiresIn = () => {
+  const rawValue = process.env.JWT_EXPIRE;
+
+  if (!rawValue) {
+    return '7d';
+  }
+
+  const normalizedValue = String(rawValue).trim().replace(/^['"]|['"]$/g, '');
+
+  if (!normalizedValue) {
+    return '7d';
+  }
+
+  const isPlainNumber = /^\d+$/.test(normalizedValue);
+  const isTimespan = /^\d+\s*(ms|s|m|h|d|w|y)$/i.test(normalizedValue);
+
+  if (isPlainNumber) {
+    return Number(normalizedValue);
+  }
+
+  if (isTimespan) {
+    return normalizedValue.replace(/\s+/g, '');
+  }
+
+  console.warn('⚠️ Ungültiger JWT_EXPIRE-Wert. Verwende Fallback 7d:', rawValue);
+  return '7d';
+};
+
 // Hash Password
 const hashPassword = async (password) => {
   const salt = await bcrypt.genSalt(10);
@@ -19,7 +47,7 @@ const createToken = (userId) => {
   return jwt.sign(
     { userId },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE }
+    { expiresIn: getJwtExpiresIn() }
   );
 };
 
