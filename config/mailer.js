@@ -65,6 +65,20 @@ const getFrontendBaseUrl = () => {
   return 'http://localhost:5000';
 };
 
+const maskEmail = (email) => {
+  if (!email || !email.includes('@')) {
+    return email;
+  }
+
+  const [localPart, domain] = email.split('@');
+
+  if (localPart.length <= 2) {
+    return `${localPart[0] || '*'}***@${domain}`;
+  }
+
+  return `${localPart.slice(0, 2)}***@${domain}`;
+};
+
 // Teste die Verbindung bei Server-Start
 transporter.verify((error, success) => {
   if (error) {
@@ -128,7 +142,10 @@ const sendWelcomeEmail = async (email, username) => {
 // Passwort-Reset E-Mail senden
 const sendPasswordResetEmail = async (email, resetToken) => {
   try {
-    const resetLink = `${getFrontendBaseUrl()}/reset-password?token=${resetToken}`;
+    const frontendBaseUrl = getFrontendBaseUrl();
+    const resetLink = `${frontendBaseUrl}/reset-password?token=${resetToken}`;
+
+    console.log('📧 Passwort-Reset-Mail wird vorbereitet für', maskEmail(email), 'mit Basis-URL', frontendBaseUrl);
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -144,7 +161,13 @@ const sendPasswordResetEmail = async (email, resetToken) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('✅ Passwort-Reset-Mail versendet:', {
+      to: maskEmail(email),
+      messageId: info.messageId,
+      response: info.response
+    });
+
     return { success: true, message: 'Passwort-Reset E-Mail gesendet' };
   } catch (error) {
     console.error('Fehler beim Senden der Passwort-Reset E-Mail:', error);
