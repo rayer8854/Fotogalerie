@@ -196,6 +196,33 @@ Fotogalerie/
 2. Überprüfen Sie die Dateigröße - max. 5MB
 3. Stellen Sie sicher, dass das `uploads/` Verzeichnis Schreibberechtigungen hat
 
+## Render Persistent Disk
+
+Wenn die Anwendung auf Render mit SQLite betrieben wird, sollten Datenbank und Uploads auf eine Persistent Disk gelegt werden. Sonst können Benutzerkonten, Reset-Tokens und hochgeladene Bilder nach Deploys oder Neustarts verloren gehen.
+
+### Empfohlene Render-Einstellungen
+
+1. Fügen Sie Ihrem Web Service eine Persistent Disk hinzu.
+2. Wählen Sie als Mount Path zum Beispiel `/var/data/fotogalerie`.
+3. Setzen Sie in den Environment Variables diese Werte:
+
+```env
+DATABASE_PATH=/var/data/fotogalerie/database.sqlite3
+UPLOAD_DIR=/var/data/fotogalerie/uploads
+```
+
+### Verhalten der Anwendung
+
+1. `DATABASE_PATH` wird für die SQLite-Datei verwendet.
+2. `UPLOAD_DIR` wird für hochgeladene Bilder verwendet.
+3. Relative Pfade funktionieren lokal weiter, absolute Pfade eignen sich für Render.
+
+### Wichtig
+
+1. Nach dem Anlegen der Disk und dem Setzen der Variablen muss der Service neu deployt werden.
+2. Bestehende lokale SQLite-Daten werden dadurch nicht automatisch nach Render kopiert.
+3. Ohne Persistent Disk bleibt SQLite auf Render nur eine temporäre Lösung.
+
 ## Sicherheitshinweise
 
 ⚠️ **Für Produktion wichtig:**

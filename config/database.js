@@ -2,19 +2,42 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
-const dbPath = path.join(__dirname, '..', 'database.sqlite3');
+const projectRoot = path.join(__dirname, '..');
+const configuredDbPath = process.env.DATABASE_PATH || './database.sqlite3';
+const fallbackDbPath = path.join(projectRoot, 'database.sqlite3');
+
+const resolveStoragePath = (targetPath) => {
+  if (!targetPath) {
+    return fallbackDbPath;
+  }
+
+  return path.isAbsolute(targetPath)
+    ? targetPath
+    : path.join(projectRoot, targetPath);
+};
+
+let dbPath = resolveStoragePath(configuredDbPath);
 
 // Stelle sicher, dass das Verzeichnis existiert
-const dbDir = path.dirname(dbPath);
-if (!fs.existsSync(dbDir)) {
-  fs.mkdirSync(dbDir, { recursive: true });
+try {
+  const dbDir = path.dirname(dbPath);
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
+} catch (error) {
+  console.warn(`⚠️ Datenbank-Pfad '${configuredDbPath}' nicht nutzbar (${error.code || error.message}). Verwende Fallback '${fallbackDbPath}'.`);
+  dbPath = fallbackDbPath;
+  const fallbackDir = path.dirname(dbPath);
+  if (!fs.existsSync(fallbackDir)) {
+    fs.mkdirSync(fallbackDir, { recursive: true });
+  }
 }
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Fehler beim Öffnen der Datenbank:', err);
   } else {
-    console.log('Verbunden mit SQLite Datenbank');
+    console.log(`Verbunden mit SQLite Datenbank: ${dbPath}`);
     initializeDatabase();
   }
 });
