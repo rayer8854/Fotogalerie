@@ -5,6 +5,20 @@ const { registerUser, verifyUserEmail, loginUser, hashPassword } = require('../c
 const { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } = require('../config/mailer');
 const { dbAsync } = require('../config/database');
 
+const maskEmail = (email) => {
+  if (!email || !email.includes('@')) {
+    return email || 'unbekannt';
+  }
+
+  const [localPart, domain] = email.split('@');
+
+  if (localPart.length <= 2) {
+    return `${localPart[0] || '*'}***@${domain}`;
+  }
+
+  return `${localPart.slice(0, 2)}***@${domain}`;
+};
+
 // Registrierung
 router.post('/register', async (req, res) => {
   try {
@@ -142,6 +156,8 @@ router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
 
+    console.log('🔐 Passwort-Reset angefordert für', maskEmail(email));
+
     if (!email) {
       return res.status(400).json({
         success: false,
@@ -153,11 +169,14 @@ router.post('/forgot-password', async (req, res) => {
 
     // Aus Sicherheitsgründen immer dieselbe Antwort zurückgeben
     if (!user) {
+      console.log('ℹ️ Passwort-Reset: Kein Benutzer gefunden für', maskEmail(email));
       return res.json({
         success: true,
         message: 'Falls ein Konto mit dieser E-Mail existiert, wurde ein Reset-Link gesendet.'
       });
     }
+
+    console.log('✅ Passwort-Reset: Benutzer gefunden für', maskEmail(user.email));
 
     const resetToken = crypto.randomBytes(32).toString('hex');
     const resetExpiry = Date.now() + (60 * 60 * 1000); // 1 Stunde
@@ -192,6 +211,8 @@ router.post('/forgot-password', async (req, res) => {
         message: 'Die Reset-E-Mail konnte derzeit nicht versendet werden. Bitte versuchen Sie es in einigen Minuten erneut.'
       });
     }
+
+    console.log('✅ Passwort-Reset: Antwort erfolgreich für', maskEmail(user.email));
 
     return res.json({
       success: true,
